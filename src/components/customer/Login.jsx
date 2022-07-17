@@ -2,6 +2,7 @@ import React, { useState } from "react";
 // import { Link } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
+import jwtDecode from 'jwt-decode'
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -67,45 +68,89 @@ export const Login = () => {
   const loginUser = async (e) => {
     e.preventDefault();
     const loginData = {
-        email,
-        password,
+      email,
+      password,
     };
 
 
     try {
 
+      const res = await axios.post(
+        "http://localhost:4000/login",
+        loginData
+      );
+
+      const data = res.data;
+
+      if (data) {
+        localStorage.setItem("token", data);
+
+        Swal.fire({
+          title: 'Logged In Successfully',
+          icon: "success",
+          showConfirmButton: false,
+          timer: 1500
+        }).then((value) => {
+          Swal.fire((window.location = "/"));
+        });
+      }
+
+    } catch (error) {
+
+      try {
+
         const res = await axios.post(
-            "http://localhost:8089/login",
-            loginData
+          "http://localhost:4000/employee/login",
+          loginData
         );
 
         const data = res.data;
 
         if (data) {
-            localStorage.setItem("token", data);
+          localStorage.setItem("token", data);
 
-            Swal.fire({
-                title: 'Logged In Successfully',
-                icon: "success",
-                showConfirmButton: false,
-                timer: 1500
-            }).then((value) => {
-                Swal.fire((window.location = "/"));
-            });
+          Swal.fire({
+            title: 'Logged In Successfully',
+            icon: "success",
+            showConfirmButton: false,
+            timer: 1500
+          }).then((value) => {
+
+            const user = jwtDecode(data);
+
+            if (user.Role == "ADMIN") {
+              Swal.fire((window.location = "/get-all-customers"));
+            }
+
+            else {
+              Swal.fire((window.location = `/`));
+            }
+
+          });
         }
 
-    } catch (error) {
+      } catch (error) {
 
         Swal.fire({
-            title: "Error!!",
-            text: error.response.data.message,
-            icon: "error",
-            confirmButtonText: "OK",
+          title: "Error!!",
+          text: error.response.data.message,
+          icon: "error",
+          confirmButtonText: "OK",
         });
         setEmail("");
         setPassword("");
+      }
+
+      // Swal.fire({
+      //     title: "Error!!",
+      //     text: error.response.data.message,
+      //     icon: "error",
+      //     confirmButtonText: "OK",
+      // });
+      // setEmail("");
+      // setPassword("");
     }
-};
+  };
 
   return (
     <Grid container component="main" className={classes.root}>
@@ -133,7 +178,7 @@ export const Login = () => {
               value={email}
               onChange={(e) => {
                 setEmail(e.target.value);
-            }}
+              }}
             />
             <TextField
               variant="outlined"
@@ -148,9 +193,9 @@ export const Login = () => {
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value);
-            }} 
+              }}
             />
-            
+
             <Button
               type="submit"
               fullWidth
@@ -172,11 +217,6 @@ export const Login = () => {
                 </Link>
               </Grid>
             </Grid>
-            <Box mt={2} mx={10}>
-            <Link href="/loginEmployee" variant="body2">
-                  <Typography align="center">Not a customer? Log In as employee</Typography>
-                </Link>
-            </Box>
             <Box mt={5}>
               <Copyright />
             </Box>

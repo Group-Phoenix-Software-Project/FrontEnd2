@@ -38,26 +38,27 @@ const useStyles = makeStyles((theme) => ({
 export const RegisterCustomer = () => {
   const classes = useStyles();
 
-  const [Designation, setDesignation] = useState("")
-  const [FirstName, setFirstName] = useState("")
-  const [LastName, setLastName] = useState("")
-  const [Email, setEmail] = useState("")
-  const [Password, setPassword] = useState("")
-  const [ConfirmPassword, setConfirmPassword] = useState("")
-  const [Address, setAddress] = useState("")
-  const [DOB, setDOB] = useState(null)
+  const [designation, setDesignation] = useState("")
+  const [firstName, setFirstName] = useState("")
+  const [lastName, setLastName] = useState("")
+  const [contactNo, setContactNo] = useState(null)
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [address, setAddress] = useState("")
+  const [dob, setDOB] = useState(null)
   let navigate = useNavigate()
 
   async function addCustomerDetails() {
 
-    if (Password === ConfirmPassword) {
+    if (password === confirmPassword) {
 
       try {
 
-        const formattedDOB = `${DOB}T00:00:00.000Z`
+        const formattedDOB = `${dob}T00:00:00.000Z`
 
-        const res = await axios.post('http://localhost:8089/register', {
-          Designation, FirstName, LastName, Email, Password, Address, DOB: formattedDOB
+        const res = await axios.post('http://localhost:4000/register', {
+          designation, firstName, lastName, contactNo, email, password, address, dob: formattedDOB
         });
 
 
@@ -101,7 +102,7 @@ export const RegisterCustomer = () => {
                 <RadioGroup
                   aria-label="mister"
                   name="mister"
-                  value={Designation}
+                  value={designation}
                   onChange={(e) => {
                     setDesignation(e.target.value)
                   }}
@@ -157,6 +158,24 @@ export const RegisterCustomer = () => {
                 }}
               />
             </div>
+
+            <div className={classes.root}>
+              <TextField
+                id="filled-full-width"
+                label="Contact No"
+                placeholder="Input your Contact No"
+                fullWidth
+                margin="normal"
+                className={classes.textField}
+                variant="filled"
+                required
+                onChange={(e) => {
+                  let iContactNo = Number.parseInt(e.target.value)
+                  setContactNo(iContactNo)
+                }}
+              />
+            </div>
+
             <div className={classes.root}>
               <TextField
                 type="email"

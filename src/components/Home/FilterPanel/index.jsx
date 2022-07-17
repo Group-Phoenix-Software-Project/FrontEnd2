@@ -15,7 +15,7 @@ const FilterPanel = ({
   changeChecked,
   changePrice,
 }) => (
-  <div className='test'>
+  <div>
     <div className='input-group'>
       <p className='label'>Category</p>
       <FilterListToggle
@@ -38,14 +38,14 @@ const FilterPanel = ({
       <p className='label-range'>Price Range</p>
       <SliderProton value={selectedPrice} changePrice={changePrice} />
     </div>
-    {/* <div className='input-group'>
+    <div className='input-group'>
       <p className='label'>Star Rating</p>
       <FilterListToggle
         options={ratingList}
         value={selectedRating}
         selectToggle={selectRating}
       />
-    </div> */}
+    </div>
   </div>
 );
 

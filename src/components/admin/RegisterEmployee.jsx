@@ -11,6 +11,9 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormControl from '@material-ui/core/FormControl';
 import FormLabel from '@material-ui/core/FormLabel';
 
+import { useContext } from 'react';
+import { UserContext } from '../../UserContext';
+
 const useStyles = makeStyles((theme) => ({
     root: {
         display: 'flex',
@@ -36,31 +39,39 @@ const useStyles = makeStyles((theme) => ({
 
 export const RegisterEmployee = () => {
 
+    const { token } = useContext(UserContext);
+
     const classes = useStyles();
 
-    const [Designation, setDesignation] = useState("")
-    const [FirstName, setFirstName] = useState("")
-    const [LastName, setLastName] = useState("")
-    const [Address, setAddress] = useState("")
-    const [Email, setEmail] = useState("")
-    const [Password, setPassword] = useState("")
-    const [ConfirmPassword, setConfirmPassword] = useState("")
-    const [DOB, setDOB] = useState(null)
-    const [Salary, setSalary] = useState(0)
-    const [Position, setPosition] = useState("")
+    const [designation, setDesignation] = useState("")
+    const [firstName, setFirstName] = useState("")
+    const [lastName, setLastName] = useState("")
+    const [address, setAddress] = useState("")
+    const [contactNo, setContactNo] = useState(null)
+    const [email, setEmail] = useState("")
+    const [password, setPassword] = useState("")
+    const [confirmPassword, setConfirmPassword] = useState("")
+    const [dob, setDOB] = useState(null)
+    const [salary, setSalary] = useState(null)
+    const [position, setPosition] = useState("")
     let navigate = useNavigate()
 
     async function addEmployeeDetails() {
 
-        if (Password === ConfirmPassword) {
+        if (password === confirmPassword) {
 
             try {
 
-                const formattedDOB = `${DOB}T00:00:00.000Z`
+                const formattedDOB = `${dob}T00:00:00.000Z`
 
-                const res = await axios.post('http://localhost:8089/employee/register', {
-                    FirstName, LastName, Designation, Address, Email, Password, DOB: formattedDOB, Salary, Position
-                });
+                const res = await axios({
+                    method: 'post',
+                    url: 'http://localhost:4000/employee/register',
+                    headers: { 'x-access-token': token },
+                    data: {
+                        firstName, lastName, designation, address, contactNo, email, password, dob: formattedDOB, salary, position
+                    }
+                })
 
 
                 Swal.fire({
@@ -103,7 +114,7 @@ export const RegisterEmployee = () => {
                                 <RadioGroup
                                     aria-label="mister"
                                     name="mister"
-                                    value={Designation}
+                                    value={designation}
                                     onChange={(e) => {
                                         setDesignation(e.target.value)
                                     }}
@@ -175,6 +186,25 @@ export const RegisterEmployee = () => {
                                 }}
                             />
                         </div>
+
+                        <div className={classes.root}>
+                            <TextField
+                                id="filled-full-width"
+                                label="Contact No"
+                                placeholder="Input your Contact No"
+                                fullWidth
+                                margin="normal"
+                                className={classes.textField}
+                                variant="filled"
+                                required
+                                onChange={(e) => {
+                                    let iContactNo = Number.parseInt(e.target.value)
+                                    setContactNo(iContactNo)
+                                }}
+                            />
+                        </div>
+
+
 
                         <div className={classes.root}>
                             <TextField

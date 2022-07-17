@@ -145,11 +145,11 @@ const Home = () => {
 
   return (
     <div className="home">
-      {/* Search Bar
+      {/* Search Bar */}
       <SearchBar
         value={searchInput}
         changeInput={(e) => setSearchInput(e.target.value)}
-      /> */}
+      />
 
       <div className="home_panelList-wrap">
         {/* Filter Panel */}

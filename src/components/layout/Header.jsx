@@ -3,12 +3,7 @@ import axios from "axios";
 import { useState } from "react";
 import { Link } from 'react-router-dom'
 import { useNavigate } from "react-router-dom";
-import jwtDecode from 'jwt-decode'
 import Swal from 'sweetalert2';
-import DashboardIcon from "@material-ui/icons/Dashboard"
-import CartDrawer from '../cart/drawer';
-import SearchIcon from "@material-ui/icons/Search";
-import './style.css';
 
 import { makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
@@ -16,10 +11,11 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
-import HomeIcon from '@material-ui/icons/Home'
+import HomeIcon from '@material-ui/icons/Home';
 
-import "../Home/SearchBar/styles.css"
-import SearchBar from '../Home/SearchBar';
+import './Header.css';
+import { useContext } from 'react';
+import { UserContext } from '../../UserContext';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -46,22 +42,12 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-export const Header = ({ value, changeInput }) => {
+export const Header = () => {
   const classes = useStyles();
 
-  const [user, setUser] = useState({});
+  const { user } = useContext(UserContext);
 
   const navigate = useNavigate();
-
-  useEffect(() => {
-
-    try {
-      const jwt = localStorage.getItem("token");
-      setUser(jwtDecode(jwt));
-    } catch (error) {
-
-    }
-  }, []);
 
   function logout() {
     localStorage.clear();
@@ -82,42 +68,39 @@ export const Header = ({ value, changeInput }) => {
           <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu" onClick={() => { navigate('/') }}>
             <HomeIcon />
           </IconButton>
-          {/* <Typography variant='h6' className={classes.title2} >
-            <a href='#' style={{ textDecoration: "none", color: "white" }}>        </a>
+          <Typography variant='h6' className={classes.title2} >
+            <a href='#' style={{ textDecoration: "none", color: "white" }}> Features </a>
           </Typography>
           <Typography variant='h6' className={classes.title3}>
-            <a href="#" style={{ textDecoration: "none", color: "white" }}>        </a>
+            <a href="#" style={{ textDecoration: "none", color: "white" }}> Pricing </a>
           </Typography>
           <Typography variant='h6' className={classes.title4}>
-            <a href="#" style={{ textDecoration: "none", color: "white" }}>        </a>
+            <a href="#" style={{ textDecoration: "none", color: "white" }}> FAQs </a>
           </Typography>
           <Typography variant='h6' className={classes.title5}>
-            <a href="#" style={{ textDecoration: "none", color: "white" }}>        </a>
-          </Typography> */}
-          {/* 
-          <div className="searchBar-wrap">
-            <SearchIcon className="searchBar-icon" />
-            <input
-              type="text"
-              placeholder="Woodland Hills"
-              value={value}
-              onChange={changeInput}
-            />
+            <a href="#" style={{ textDecoration: "none", color: "white" }}> About </a>
+          </Typography>
 
-            <CartDrawer />
-            <Link to="/dashboard">
-              <IconButton>
-                <DashboardIcon />
-              </IconButton>
-            </Link>
-          </div> */}
-
-          <div className='search'> <SearchBar /></div>
-
-
-          {localStorage.getItem("token") ?
+          {user ?
             <>
-              {user.Email + " "}
+              {/* {user.Email + " "} */}
+              <h5
+                id='email'
+                style={{ cursor: "pointer" }}
+                onClick={() => {
+                  if (user.Role == "CUSTOMER")
+                    navigate(`/updateCustomer/${user.Id}`)
+
+                  else if (user.Role == "EMPLOYEE")
+                    navigate(`/updateEmployee/${user.Id}`)
+
+                  else if (user.Role == "ADMIN")
+                    navigate(`/get-all-customers`)
+                }}
+
+              >
+                {user.Email}
+              </h5>
 
 
               <Button style={{ marginLeft: "1%" }} color="secondary" variant='contained' onClick={logout}>Log Out</Button>

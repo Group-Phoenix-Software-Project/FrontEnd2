@@ -12,6 +12,9 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormControl from '@material-ui/core/FormControl';
 import FormLabel from '@material-ui/core/FormLabel';
 
+import { useContext } from 'react';
+import { UserContext } from '../../UserContext';
+
 const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
@@ -32,28 +35,43 @@ const useStyles = makeStyles((theme) => ({
   edge: {
     marginLeft: theme.spacing(20),
     marginRight: theme.spacing(20)
+  },
+  bottom: {
+    marginLeft: theme.spacing(39),
+    marginRight: theme.spacing(39),
+    marginTop: theme.spacing(3)
   }
 }));
 
 export const UpdateCustomer = () => {
+
+  const { user, token } = useContext(UserContext);
+
   const { id } = useParams()
   const classes = useStyles();
 
-  const [Designation, setDesignation] = useState("")
-  const [FirstName, setFirstName] = useState("")
-  const [LastName, setLastName] = useState("")
-  const [Email, setEmail] = useState("")
-  const [Address, setAddress] = useState("")
-  const [DOB, setDOB] = useState(null)
+  const [designation, setDesignation] = useState("")
+  const [firstName, setFirstName] = useState("")
+  const [lastName, setLastName] = useState("")
+  const [contactNo, setContactNo] = useState(null)
+  const [email, setEmail] = useState("")
+  const [address, setAddress] = useState("")
+  const [dob, setDOB] = useState(null)
   let navigate = useNavigate()
 
   async function getCustomerDetails() {
     try {
 
-      const res = await axios.get(`http://localhost:8089/customer/${id}`);
+      const res = await axios({
+        method: 'get',
+        url: `http://localhost:4000/customer/${id}`,
+        headers: { 'x-access-token': token }
+      })
+
       setDesignation(res.data.designation)
       setFirstName(res.data.firstName);
       setLastName(res.data.lastName);
+      setContactNo(res.data.contactNo);
       setEmail(res.data.email);
       setAddress(res.data.address);
       const unformattedDOB = res.data.dob;
@@ -63,20 +81,22 @@ export const UpdateCustomer = () => {
     } catch (error) {
       console.error(error)
     }
-
-    // await axios.get(`http://localhost:8089/customer/${id}`)
-    //   .then(res => setCustomer(res.data))
-    //   .catch(err => console.error(err))
   }
 
   async function updateCustomerDetails() {
 
     try {
 
-      const formattedDOB = `${DOB}T00:00:00.000Z`
-      await axios.patch(`http://localhost:8089/customer/update/${id}`, {
-        FirstName, LastName, Designation, Address, Email, DOB: formattedDOB
-      });
+      const formattedDOB = `${dob}T00:00:00.000Z`
+
+      await axios({
+        method: 'patch',
+        url: `http://localhost:4000/customer/update/${id}`,
+        headers: { 'x-access-token': token },
+        data: {
+          firstName, lastName, contactNo, designation, address, email, dob: formattedDOB
+        }
+      })
 
       Swal.fire({
         title: 'Updated Successfully',
@@ -101,7 +121,12 @@ export const UpdateCustomer = () => {
           <form
             onSubmit={() => {
               updateCustomerDetails();
-              navigate('/get-all-customers')
+              if (user.Role == "CUSTOMER") {
+                navigate('/')
+              }
+              else if (user.Role == "ADMIN") {
+                navigate('/get-all-customers')
+              }
             }}
           >
 
@@ -113,7 +138,7 @@ export const UpdateCustomer = () => {
                 <RadioGroup
                   aria-label="mister"
                   name="mister"
-                  value={Designation}
+                  value={designation}
                   onChange={(e) => {
                     setDesignation(e.target.value)
                   }}
@@ -143,7 +168,7 @@ export const UpdateCustomer = () => {
                 id="filled-full-width"
                 label="First Name"
                 placeholder="Input your first name"
-                value={FirstName}
+                value={firstName}
                 fullWidth
                 margin="normal"
                 className={classes.textField}
@@ -160,7 +185,7 @@ export const UpdateCustomer = () => {
                 id="filled-full-width"
                 label="Last Name"
                 placeholder="Input your last name"
-                value={LastName}
+                value={lastName}
                 fullWidth
                 margin="normal"
                 className={classes.textField}
@@ -171,13 +196,36 @@ export const UpdateCustomer = () => {
                 }}
               />
             </div>
+
+            <div className={classes.root}>
+              <TextField
+                id="contactNo"
+                label="Contact No"
+                placeholder="Input your Contact No"
+                value={contactNo}
+                fullWidth
+                margin="normal"
+                className={classes.textField}
+                variant="filled"
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                required
+                onChange={(e) => {
+                  let iContactNo = Number.parseInt(e.target.value)
+                  setContactNo(iContactNo)
+                }}
+              />
+            </div>
+
+
             <div className={classes.root}>
               <TextField
                 type="email"
                 id="filled-full-width"
                 label="Email"
                 placeholder="Input email address"
-                value={Email}
+                value={email}
                 fullWidth
                 margin="normal"
                 className={classes.textField}
@@ -211,7 +259,7 @@ export const UpdateCustomer = () => {
                 id="filled-full-width"
                 label="Address"
                 placeholder="Enter your address here"
-                value={Address}
+                value={address}
                 fullWidth
                 margin="normal"
                 className={classes.textField}
@@ -228,7 +276,7 @@ export const UpdateCustomer = () => {
                 label="Birthday"
                 variant="filled"
                 type="date"
-                value={DOB}
+                value={dob}
                 className={classes.textField}
                 InputLabelProps={{
                   shrink: true,
@@ -238,10 +286,12 @@ export const UpdateCustomer = () => {
                 }}
               />
             </div>
-            <Button type="submit" className={classes.textField} variant="outlined" color="primary" style={{ marginLeft: "40%", width: "20%", marginTop: "5%" }}>
+            <Button type="submit" className={classes.textField} variant="contained" color="primary" style={{ marginLeft: "40%", width: "20%", marginTop: "5%" }}>
               UPDATE
             </Button>
           </form>
+
+          <Button variant="contained" color="secondary" className={classes.bottom} onClick={() => { navigate(`/resetCusPassword/${id}`) }}>Click here to reset password</Button>
         </div>
       </div>
     </div>
